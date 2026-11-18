@@ -66,18 +66,12 @@ final class TicketController extends AbstractController
         $user = $this->getUser();
 
         if ($parent) {
-            if ($parent->getRequester() !== $user) {
-                // add message flash
-                return $this->redirectToRoute('app_dashboard_user_tickets_index');
-            }
-
-            if ($parent->getParentTicket() !== null) {
-                // add message flash
-                return $this->redirectToRoute('app_dashboard_user_tickets_index');
-            }
-
-            if ($parent->getRequester() !== $user) {
-                // 'You are not allowed to use this ticket as a parent.'
+            if (
+                $parent->getRequester() !== $user
+                || $parent->getParentTicket() !== null
+                || $parent->getDeletedAt() !== null
+            ) {
+                $this->addFlash('warning', 'You are not allowed to use this ticket as a parent.');
                 return $this->redirectToRoute('app_dashboard_user_tickets_index');
             }
         }

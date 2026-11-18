@@ -94,13 +94,12 @@ final class TicketFixtures extends Fixture implements DependentFixtureInterface
         $ticket = $this->createTicket($user);
         return $ticket
             ->setDescription('Child ticket, '. $ticket->getDescription())
-            ->setParentTicket($parentTicket);
+            ->setParentTicket($parentTicket)
         ;
     }
 
     private function addComment(ObjectManager $manager, User $user, Ticket $ticket)
     {
-        // if (random_int(0, 1) === 1) {
         if (random_int(1, 100) <= 70) {
             $loop = random_int(0, 3);
             for ($i = 1; $i <= $loop; $i++) {
