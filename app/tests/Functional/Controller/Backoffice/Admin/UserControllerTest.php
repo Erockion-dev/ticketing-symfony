@@ -37,6 +37,7 @@ final class UserControllerTest extends WebTestCase
     public function testAdminCanUpdateUser(): void
     {
         $client = $this->createClientLoggedInAs('admin01@example.com');
+        $this->ensureTestUser('user01@example.com');
 
         $id = static::getContainer()->get(UserRepository::class)
             ->findOneBy(['email' => 'user01@example.com'])
@@ -60,6 +61,7 @@ final class UserControllerTest extends WebTestCase
     public function testAdminCanSoftDelete(): void
     {
         $client = $this->createClientLoggedInAs('admin01@example.com');
+        $this->ensureTestUser('user01@example.com');
 
         $id = static::getContainer()->get(UserRepository::class)
             ->findOneBy(['email' => 'user01@example.com'])

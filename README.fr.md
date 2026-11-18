@@ -1,6 +1,6 @@
-# Symfony Starter Kit
+# Application de gestion de tickets
 
-Starter Symfony 7.4 : un site web (front + backoffice) et une API JWT, dans un environnement Docker.
+Application de gestion de tickets de support développée avec Symfony 7.4. Elle comprend un site web avec un espace utilisateur et un backoffice, ainsi qu'une API REST protégée par JWT, le tout exécuté dans Docker.
 
 ## Stack
 
@@ -39,7 +39,7 @@ JWT_SECRET=colle_ici_le_secret_genere
 `DATABASE_URL` doit pointer vers le service `postgres` (et non `localhost`) :
 
 ```dotenv
-DATABASE_URL="postgresql://postgres:postgres@postgres:5432/symf_starter?serverVersion=18&charset=utf8"
+DATABASE_URL="postgresql://postgres:postgres@postgres:5432/symf_ticket?serverVersion=18&charset=utf8"
 ```
 
 ### 3. Dépendances
@@ -50,7 +50,7 @@ make install
 
 ### 4. Base de données
 
-La base `symf_starter` est créée automatiquement au premier démarrage du container `postgres`. Il reste à créer les tables avec les migrations :
+La base `symf_ticket` est créée automatiquement au premier démarrage du container `postgres`. Il reste à créer les tables avec les migrations :
 
 ```bash
 docker compose exec php php bin/console doctrine:migrations:migrate -n
@@ -85,7 +85,7 @@ pgAdmin sert à parcourir la base. Il ne connaît aucun serveur au départ : ouv
 
 | Champ | Valeur |
 |---|---|
-| Name | `symf_starter` |
+| Name | `symf_ticket` |
 | Host name/address | `postgres` |
 | Port | `5432` |
 | Username | `postgres` |
@@ -126,7 +126,7 @@ Les tests utilisent PHPUnit et s'exécutent dans le container PHP.
 
 ### Base de test
 
-Les tests tournent sur leur propre base, `symf_starter_test` (Symfony ajoute le suffixe `_test` en environnement `test`), pour ne jamais toucher à ta base de développement. À créer une seule fois :
+Les tests tournent sur leur propre base, `symf_ticket_test` (Symfony ajoute le suffixe `_test` en environnement `test`), pour ne jamais toucher à ta base de développement. À créer une seule fois :
 
 ```bash
 docker compose exec php php bin/console doctrine:database:create --env=test
@@ -141,13 +141,13 @@ docker compose exec php php bin/console doctrine:fixtures:load -n --env=test
 
 Attention : cette commande **vide la base avant d'insérer**. Garde toujours `--env=test`, sinon elle efface ta base de développement.
 
-Comptes créés (mot de passe commun : `password123`) :
+Comptes créés (le mot de passe dépend du rôle) :
 
-| Email | Rôle |
-|---|---|
-| `admin01@example.com` | admin |
-| `operator01@example.com` | operator |
-| `user01@example.com` | user |
+| Email | Rôle | Mot de passe |
+|---|---|---|
+| `admin1@example.com` | admin | 123_admin |
+| `operator1@example.com` | operator | 123_ope |
+| `user1@example.com` | user | 123_user |
 
 Recharge les fixtures après chaque modification de `src/DataFixtures/`.
 
@@ -211,6 +211,21 @@ curl http://localhost:8080/api/users/profile \
 | `GET`, `PATCH`, `DELETE` | `/api/admin/users/{id}` | admin |
 
 La suppression est un soft delete (le champ `deletedAt` est renseigné et le compte est désactivé).
+
+## Cycle de vie d'un ticket
+
+```text
+Open ────────> InProgress
+ │                  │
+ │                  ├────> Blocked
+ │                  │         │
+ │                  <─────────┘
+ │                  │
+ │                  v
+ └──────────────> Resolved ─────> Closed
+                      │
+                      └─────────> InProgress
+```
 
 ## Structure
 

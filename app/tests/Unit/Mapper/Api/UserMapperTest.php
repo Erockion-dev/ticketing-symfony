@@ -43,7 +43,7 @@ final class UserMapperTest extends TestCase
         $this->assertSame('user@example.com', $dto->email);
         $this->assertSame('User', $dto->firstname);
         $this->assertSame('One', $dto->lastname);
-        $this->assertEqualsCanonicalizing(['admin', 'user'], $dto->roles);
+        $this->assertSame(['admin'], $dto->roles);
     }
 
     public function testToListResponseDtoBuildsDataAndPagination(): void
@@ -113,7 +113,7 @@ final class UserMapperTest extends TestCase
 
         $this->mapper->applyUpdate($dto, $user, $hasher);
 
-        $this->assertEqualsCanonicalizing(['ROLE_OPERATOR', 'ROLE_USER'], $user->getRoles());
+        $this->assertSame(['ROLE_OPERATOR'], $user->getRoles());
         $this->assertFalse($user->isActive());
     }
 }

@@ -31,6 +31,7 @@ final class PagesTest extends WebTestCase
     public function testAdminCanSeeUserDetailAndEditPages(): void
     {
         $client = $this->createClientLoggedInAs('admin01@example.com');
+        $this->ensureTestUser('user01@example.com');
         $id = static::getContainer()->get(UserRepository::class)
             ->findOneBy(['email' => 'user01@example.com'])
             ->getId();

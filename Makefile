@@ -22,11 +22,13 @@ install: ## Installe les dépendances (composer + pnpm)
 	$(MAKE) front
 
 php:
-	docker exec -it symf_starter_php /bin/bash
+	docker exec -it symf_ticket_php /bin/bash
 
 console: ## Ex : make console c="cache:clear"
 	$(PHP) php bin/console $(c)
 
+fixtures: ## Charge les fixtures dans la base de test
+	$(PHP) php bin/console doctrine:fixtures:load --env=test --no-interaction
 
-tests: ## run tests
+tests: fixtures ## Charge les fixtures puis lance les tests
 	$(PHP) vendor/bin/phpunit tests/

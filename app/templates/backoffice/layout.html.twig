@@ -16,7 +16,8 @@
         <div class="md:pl-64">
             {{ include('backoffice/partials/_topbar.html.twig') }}
             <main class="p-4 md:p-6">
-                {% block content %}{% endblock %}
+                    {{ include('shared/_flashes.html.twig') }}
+                    {% block content %}{% endblock %}
             </main>
         </div>
     </div>

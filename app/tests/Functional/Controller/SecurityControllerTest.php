@@ -3,10 +3,13 @@
 namespace App\Tests\Functional\Controller\Front;
 
 use App\DataFixtures\UserFixtures;
+use App\Tests\Functional\AuthenticatedClientTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 final class SecurityControllerTest extends WebTestCase
 {
+    use AuthenticatedClientTrait;
+
     public function testLoginPageDisplaysTheForm(): void
     {
         $client = static::createClient();
@@ -28,11 +31,12 @@ final class SecurityControllerTest extends WebTestCase
     public function testSuccessfulLoginRedirectsToHome(): void
     {
         $client = static::createClient();
+        $this->ensureTestUser('admin01@example.com');
 
         $crawler = $client->request('GET', '/login');
         $form = $crawler->filter('form')->form([
             '_username' => 'admin01@example.com',
-            '_password' => UserFixtures::PASSWORD,
+            '_password' => UserFixtures::PASSWORD.'admin',
         ]);
         $client->submit($form);
 

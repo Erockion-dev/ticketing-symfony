@@ -1,0 +1,134 @@
+{% extends 'backoffice/layout.html.twig' %}
+
+{% block title %}{{ ticket.title }}{% endblock %}
+
+{% block content %}
+    <div class="mx-auto max-w-3xl space-y-6">
+        <div class="mb-4 flex items-center justify-between">
+            <h1>{{ ticket.title }}</h1>
+            <a href="{{ path('app_dashboard_admin_tickets_index') }}" class="btn-secondary">Back</a>
+        </div>
+        
+        <div class="overflow-x-auto rounded-lg border bg-white">
+            <table class="min-w-full divide-y divide-gray-100 text-sm">
+                <tbody class="divide-y divide-gray-100">
+                    <tr>
+                        <th class="w-1/3 bg-gray-50 px-4 py-3 text-left font-medium text-gray-500">Status</th>
+                        <td class="px-4 py-3">
+                            <twig:StatusBadge value="{{ ticket.status.value }}" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg-gray-50 px-4 py-3 text-left font-medium text-gray-500">Priority</th>
+                        <td class="px-4 py-3">
+                            <twig:PriorityBadge value="{{ ticket.priority.value }}" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg-gray-50 px-4 py-3 text-left font-medium text-gray-500">Requester</th>
+                        <td class="px-4 py-3 text-gray-900">{{ ticket.requester.firstname }} {{ ticket.requester.lastname }}</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-gray-50 px-4 py-3 text-left font-medium text-gray-500">Assigned to</th>
+                        <td class="px-4 py-3 text-gray-900">
+                            {% if ticket.assignedTo %}
+                                {{ ticket.assignedTo.firstname }} {{ ticket.assignedTo.lastname }}
+                            {% else %}
+                                <span class="text-gray-500">Not assigned yet</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg-gray-50 px-4 py-3 text-left font-medium text-gray-500">Created by</th>
+                        <td class="px-4 py-3 text-gray-900">{{ ticket.createdBy.firstname }} {{ ticket.createdBy.lastname }}</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-gray-50 px-4 py-3 text-left font-medium text-gray-500">Created at</th>
+                        <td class="px-4 py-3 text-gray-900">{{ ticket.createdAt|date('Y-m-d H:i') }}</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-gray-50 px-4 py-3 text-left font-medium text-gray-500">Deleted at</th>
+                        <td class="px-4 py-3 text-gray-900">
+                            {% if ticket.deletedAt is not null %}
+                                {{ ticket.deletedAt|date('Y-m-d H:i') }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg-gray-50 px-4 py-3 text-left font-medium text-gray-500">Last update</th>
+                        <td class="px-4 py-3 text-gray-900">{{ ticket.updatedAt|date('Y-m-d H:i') }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <section class="rounded-lg border bg-white p-4">
+            <h2 class="mb-2 text-sm font-medium text-gray-500">Description</h2>
+            <p class="whitespace-pre-line text-sm text-gray-900">{{ ticket.description }}</p>
+        </section>
+
+        {% if ticket.relatedTickets|length > 0 %}
+            <section class="rounded-lg border bg-white p-4">
+                <h2 class="mb-2 text-sm font-medium text-gray-500">Child tickets</h2>
+
+                <ul class="space-y-1 text-sm">
+                    {% for child in ticket.relatedTickets %}
+                        <li>
+                            <a
+                                href="{{ path('app_dashboard_admin_tickets_show', {id: child.id}) }}"
+                                class="block rounded-md px-3 py-2 text-gray-700 transition hover:bg-gray-50 hover:text-indigo-600"
+                            >
+                                <span class="font-medium text-gray-500">#{{ child.id }}</span>
+                                <span class="ml-1">{{ child.title }}</span>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        {% endif %}
+
+        {% if ticket.parentTicket is not null %}
+            <section class="rounded-lg border bg-white p-4">
+                <h2 class="mb-2 text-sm font-medium text-gray-500">Parent ticket</h2>
+
+                <a
+                    href="{{ path('app_dashboard_admin_tickets_show', {id: ticket.parentTicket.id}) }}"
+                    class="block rounded-md px-3 py-2 text-gray-700 transition hover:bg-gray-50 hover:text-indigo-600"
+                >
+                    <span class="font-medium text-gray-500">#{{ ticket.parentTicket.id }}</span>
+                    <span class="ml-1">{{ ticket.parentTicket.title }}</span>
+                </a>
+            </section>
+        {% endif %}
+
+        <section class="rounded-lg border bg-white p-4">
+            <div class="mb-3 flex items-center justify-between">
+                <h2 class="text-sm font-medium text-gray-500">Comments</h2>
+
+                <a
+                    href="{{ path('app_dashboard_admin_ticket_comments_new', {id: ticket.id}) }}"
+                    class="btn-primary inline-flex items-center gap-2"
+                >
+                    <span aria-hidden="true">+</span>
+                    Add comment
+                </a>
+            </div>
+
+            {% set comments = ticket.ticketComments|filter(c => c.deletedAt is null) %}
+
+            {% for comment in comments %}
+                <div class="border-t py-3 first:border-t-0 first:pt-0">
+                    <p class="text-xs text-gray-500">
+                        {{ comment.createdBy.firstname }} {{ comment.createdBy.lastname }}
+                        · {{ comment.createdAt|date('Y-m-d H:i') }}
+                    </p>
+                    <p class="mt-1 whitespace-pre-line text-sm text-gray-900">{{ comment.content }}</p>
+                </div>
+            {% else %}
+                <p class="text-sm text-gray-500">No comments yet.</p>
+            {% endfor %}
+        </section>
+    </div>
+{% endblock %}

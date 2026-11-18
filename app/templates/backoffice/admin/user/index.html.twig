@@ -19,12 +19,13 @@
                     <th class="px-4 py-3">Email</th>
                     <th class="px-4 py-3">Roles</th>
                     <th class="px-4 py-3">Status</th>
+                    <th class="px-4 py-3">Nbr tickets</th>
                     <th class="px-4 py-3 text-right">Actions</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
-                {% for user in pagination %}
-                    {# <tr class="hover:bg-gray-50"> #}
+                {% for userDto in pagination %}
+                    {% set user = userDto.user %}
                     <tr class="{{ user.deletedAt ? 'bg-red-50 hover:bg-red-100' : 'hover:bg-gray-50' }}">
                         <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-900">
                             {{ user.firstName }} {{ user.lastName }}
@@ -32,9 +33,7 @@
                         <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ user.email }}</td>
                         <td class="px-4 py-3">
                             {% for role in user.roles %}
-                                <span class="mr-1 inline-block rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-700">
-                                    {{ role|replace({'ROLE_': ''})|lower|capitalize }}
-                                </span>
+                                <twig:RoleBadge value="{{ role }}" />
                             {% endfor %}
                         </td>
                         <td class="px-4 py-3">
@@ -46,10 +45,12 @@
                                 <span class="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-700">Inactive</span>
                             {% endif %}
                         </td>
+                        <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ userDto.ticketCount }}</td>
                         <td class="whitespace-nowrap px-4 py-3 text-right">
                             <div class="flex items-right justify-end gap-3">
                                 <a href="{{ path('app_dashboard_admin_users_show', {id: user.id}) }}" class="text-gray-600 hover:text-gray-900">View</a>
                                 <a href="{{ path('app_dashboard_admin_users_edit', {id: user.id}) }}" class="ml-3 text-blue-600 hover:text-blue-800">Edit</a>
+                                <a href="{{ path('app_dashboard_admin_tickets_new_for_requester', {id: user.id}) }}" class="ml-3 text-blue-600 hover:text-blue-800">New ticket</a>
                                 
                                 {% if user.deletedAt %}
                                     <form method="post" action="{{ path('app_dashboard_admin_users_restore', {id: user.id}) }}">

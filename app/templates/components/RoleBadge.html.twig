@@ -1,0 +1,9 @@
+{% set classes = {
+    ROLE_ADMIN: 'bg-purple-100 text-purple-700',
+    ROLE_OPERATOR: 'bg-orange-100 text-orange-700',
+    ROLE_USER: 'bg-gray-100 text-gray-700',
+} %}
+
+<span class="mr-1 rounded px-2 py-0.5 text-xs {{ classes[value]|default('bg-gray-100 text-gray-700') }}">
+    {{ value|replace({'ROLE_': '', '_': ' '})|capitalize }}
+</span>

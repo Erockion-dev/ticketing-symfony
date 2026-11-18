@@ -18,15 +18,19 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_ADMIN')]
 final class UserController extends AbstractController
 {
+    public function __construct(
+        private EntityManagerInterface $entityManager,
+        private UserRepository $userRepository,
+    ) {}
+
     #[Route(name: 'index', methods: ['GET'])]
     public function index(
         Request $request,
-        UserRepository $userRepository,
         PaginatorInterface $paginator
     ): Response
     {
         $pagination = $paginator->paginate(
-            $userRepository->createListQueryBuilder(),
+            $this->userRepository->createListQueryBuilder(),
             $request->query->getInt('page', 1),
             25,
         );
@@ -36,7 +40,7 @@ final class UserController extends AbstractController
     }
 
     #[Route('/new', name: 'new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $hasher): Response
+    public function new(Request $request, UserPasswordHasherInterface $hasher): Response
     {
         $user = new User();
         $form = $this->createForm(UserType::class, $user);
@@ -44,8 +48,10 @@ final class UserController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $user->setPassword($hasher->hashPassword($user, $form->get('plainPassword')->getData()));
-            $entityManager->persist($user);
-            $entityManager->flush();
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'User created.');
 
             return $this->redirectToRoute('app_dashboard_admin_users_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -65,7 +71,7 @@ final class UserController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, User $user, EntityManagerInterface $entityManager, UserPasswordHasherInterface $hasher): Response
+    public function edit(Request $request, User $user, UserPasswordHasherInterface $hasher): Response
     {
         $form = $this->createForm(UserType::class, $user, ['password_required' => false]);
         $form->handleRequest($request);
@@ -75,7 +81,9 @@ final class UserController extends AbstractController
             if ($plain) {
                 $user->setPassword($hasher->hashPassword($user, $plain));
             }
-            $entityManager->flush();
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'User updated.');
 
             return $this->redirectToRoute('app_dashboard_admin_users_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -87,7 +95,7 @@ final class UserController extends AbstractController
     }
 
     #[Route('/{id}/soft-delete', name: 'soft_delete', methods: ['POST'])]
-    public function softDelete(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    public function softDelete(Request $request, User $user): Response
     {
         if (
             $user->getDeletedAt() === null
@@ -95,14 +103,16 @@ final class UserController extends AbstractController
         ) {
             $user->setDeletedAt(new \DateTimeImmutable());
             $user->setIsActive(false);
-            $entityManager->flush();
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'User deleted.');
         }
 
         return $this->redirectToRoute('app_dashboard_admin_users_index', [], Response::HTTP_SEE_OTHER);
     }
 
     #[Route('/{id}/restore', name: 'restore', methods: ['POST'])]
-    public function restore(Request $request, User $user, EntityManagerInterface $em): Response
+    public function restore(Request $request, User $user): Response
     {
         if (
             $user->getDeletedAt() !== null
@@ -110,7 +120,11 @@ final class UserController extends AbstractController
             $this->isCsrfTokenValid('restore'.$user->getId(), $request->getPayload()->getString('_token'))
         ) {
             $user->setDeletedAt(null);
-            $em->flush();
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'User restored.');
+        } else {
+            $this->addFlash('success', 'User not restored.');
         }
 
         return $this->redirectToRoute('app_dashboard_admin_users_index');

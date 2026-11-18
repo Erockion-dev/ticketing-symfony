@@ -1,0 +1,57 @@
+{% extends 'backoffice/layout.html.twig' %}
+
+{% block title %}Utilisateurs{% endblock %}
+
+{% block content %}
+    <div class="mb-4 flex items-center justify-between">
+        <h1 class="h1">Users</h1>
+        <a href="{{ path('app_dashboard_admin_users_new') }}"
+           class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-700">
+            New user
+        </a>
+    </div>
+
+    <div class="overflow-x-auto rounded-lg border bg-white">
+        <table class="min-w-full divide-y divide-gray-200 text-sm">
+            <thead class="bg-gray-50 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+                <tr>
+                    <th class="px-4 py-3">Name</th>
+                    <th class="px-4 py-3">Email</th>
+                    <th class="px-4 py-3">Status</th>
+                    <th class="px-4 py-3 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for user in pagination %}
+                    <tr class="{{ user.deletedAt ? 'bg-red-50 hover:bg-red-100' : 'hover:bg-gray-50' }}">
+                        <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-900">
+                            {{ user.firstName }} {{ user.lastName }}
+                        </td>
+                        <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ user.email }}</td>
+                        <td class="px-4 py-3">
+                            {% if user.deletedAt %}
+                                <span class="rounded bg-red-100 px-2 py-0.5 text-xs text-red-700">Deleted</span>
+                            {% elseif user.isActive %}
+                                <span class="rounded bg-green-100 px-2 py-0.5 text-xs text-green-700">Active</span>
+                            {% else %}
+                                <span class="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-700">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td class="whitespace-nowrap px-4 py-3 text-right">
+                            <div class="flex items-right justify-end gap-3">
+                                <a href="{{ path('app_dashboard_operator_tickets_new_for_requester', {id: user.id}) }}" class="ml-3 text-blue-600 hover:text-blue-800">New ticket</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="px-4 py-6 text-center text-gray-500">Aucun utilisateur.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="mt-4">
+        {{ knp_pagination_render(pagination) }}
+    </div>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends 'backoffice/layout.html.twig' %}
+
+{% block title %}Admin Ticket{% endblock %}
+
+{% block content %}
+        <div class="mb-4 flex items-center justify-between">
+        <h1 class="h1">Tickets</h1>
+    </div>
+
+    <div class="overflow-x-auto rounded-lg border bg-white">
+        <table class="min-w-full divide-y divide-gray-200 text-sm">
+            <thead class="bg-gray-50 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+                <tr>
+                    <th class="px-4 py-3">#</th>
+                    <th class="px-4 py-3">title</th>
+                    <th class="px-4 py-3">Status</th>
+                    <th class="px-4 py-3">Priority</th>
+                    <th class="px-4 py-3">Requester</th>
+                    <th class="px-4 py-3">Comments</th>
+                    <th class="px-4 py-3">Children Ticket</th>
+                    <th class="px-4 py-3 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for ticket in pagination %}
+                    <tr class="{{ ticket.deletedAt ? 'bg-red-50 hover:bg-red-100' : 'hover:bg-gray-50' }}">
+                        <td class="px-4 py-3 font-medium text-gray-900">
+                            {{ ticket.id }}
+                        </td>
+                        <td class="whitespace-nowrap px-4 py-3 text-gray-600">
+                            {{ ticket.title }}
+                        </td>
+                        <td class="whitespace-nowrap px-4 py-3">
+                            <twig:StatusBadge value="{{ ticket.status.value }}" />
+                        </td>
+                        <td class="px-4 py-3">
+                            <twig:PriorityBadge value="{{ ticket.priority.value }}" />
+                        </td>
+                        <td class="px-4 py-3">
+                            {{ ticket.requester.firstname }} {{ ticket.requester.lastname }}
+                        </td>
+                        <td class="px-4 py-3">
+                            {{ ticket.ticketComments|length }}
+                        </td>
+                        <td class="px-4 py-3">
+                            {{ ticket.relatedTickets|length }}
+                        </td>
+                        <td class="whitespace-nowrap px-4 py-3 text-right">
+                            <div class="flex items-right justify-end gap-3">
+                                <a href="{{ path('app_dashboard_admin_tickets_show', {id: ticket.id}) }}" class="text-gray-600 hover:text-gray-900">View</a>
+                                <a href="{{ path('app_dashboard_admin_tickets_edit', {id: ticket.id}) }}" class="ml-3 text-blue-600 hover:text-blue-800">Edit</a>
+                                {% if ticket.deletedAt is null %}
+                                    {{ include('backoffice/admin/ticket/_soft_delete_form.html.twig') }}
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="px-4 py-6 text-center text-gray-500">Aucun utilisateur.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="mt-4">
+        {{ knp_pagination_render(pagination) }}
+    </div>
+{% endblock %}

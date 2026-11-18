@@ -9,14 +9,15 @@
 
     <nav class="ml-4 hidden items-center gap-1 md:flex">
         <a href="{{ path('app_dashboard_admin_users_index') }}"
-        class="rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-100">
-            LinkOne
+            class="rounded-md px-3 py-2 text-sm hover:bg-gray-100 {{ route starts with 'app_dashboard_admin_user' ? 'bg-gray-100 font-medium text-gray-900' : 'text-gray-700' }}">
+            Users
         </a>
     </nav>
+
     <nav class="ml-4 hidden items-center gap-1 md:flex">
         <a href="{{ path('app_dashboard_admin_users_index') }}"
-            class="rounded-md px-3 py-2 text-sm hover:bg-gray-100 {{ route starts with 'app_dashboard_admin_user' ? 'bg-gray-100 font-medium text-gray-900' : 'text-gray-700' }}">
-            LinkTwo
+        class="rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-100">
+            LinkOne
         </a>
     </nav>
 
@@ -29,7 +30,12 @@
         </summary>
         <div class="absolute left-0 z-50 mt-1 w-48 rounded-md border bg-white py-1 shadow-lg">
             <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">UnderLinkOne</a>
-            <a href="{{ path('app_home') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Front</a>
+            <a
+                href="{{ path('app_dashboard_profile') }}"
+                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100
+                    {% if route == 'app_dashboard_profile' %} underline decoration-2 underline-offset-8{% endif %}
+                "
+            >Profile</a>
         </div>
     </details>
 

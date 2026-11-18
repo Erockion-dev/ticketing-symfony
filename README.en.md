@@ -1,6 +1,6 @@
-# Symfony Starter Kit
+# Ticketing App
 
-Symfony 7.4 starter: a web app (front + backoffice) and a JWT API, running in Docker.
+Support ticketing application built with Symfony 7.4. It includes a web interface with a user area and backoffice, plus a JWT-protected REST API, all running in Docker.
 
 ## Stack
 
@@ -39,7 +39,7 @@ JWT_SECRET=paste_the_generated_secret_here
 `DATABASE_URL` must point to the `postgres` service (not `localhost`):
 
 ```dotenv
-DATABASE_URL="postgresql://postgres:postgres@postgres:5432/symf_starter?serverVersion=18&charset=utf8"
+DATABASE_URL="postgresql://postgres:postgres@postgres:5432/symf_ticket?serverVersion=18&charset=utf8"
 ```
 
 ### 3. PHP dependencies
@@ -50,7 +50,7 @@ make install
 
 ### 4. Database
 
-The `symf_starter` database is created automatically the first time the `postgres` container starts. You only need to create the tables by running the migrations:
+The `symf_ticket` database is created automatically the first time the `postgres` container starts. You only need to create the tables by running the migrations:
 
 ```bash
 docker compose exec php php bin/console doctrine:migrations:migrate -n
@@ -85,7 +85,7 @@ pgAdmin lets you browse the database. It knows no server at first: open `http://
 
 | Field | Value |
 |---|---|
-| Name | `symf_starter` |
+| Name | `symf_ticket` |
 | Host name/address | `postgres` |
 | Port | `5432` |
 | Username | `postgres` |
@@ -128,13 +128,13 @@ docker compose exec php php bin/console doctrine:fixtures:load -n --env=test
 
 Warning: this command **empties the database before inserting**. Always keep `--env=test`, otherwise it wipes your development database.
 
-Accounts created (shared password: `password123`):
+Accounts created (password depends on the role):
 
-| Email | Role |
-|---|---|
-| `admin01@example.com` | admin |
-| `operator01@example.com` | operator |
-| `user01@example.com` | user |
+| Email | Role | Password |
+|---|---|---|
+| `admin1@example.com` | admin | 123_admin |
+| `operator1@example.com` | operator | 123_ope |
+| `user1@example.com` | user | 123_user |
 
 Reload the fixtures after every change in `src/DataFixtures/`.
 
@@ -198,6 +198,21 @@ curl http://localhost:8080/api/users/profile \
 | `GET`, `PATCH`, `DELETE` | `/api/admin/users/{id}` | admin |
 
 Deletion is a soft delete (the `deletedAt` field is set and the account is deactivated).
+
+## Ticket lifecycle
+
+```text
+Open ────────> InProgress
+ │                  │
+ │                  ├────> Blocked
+ │                  │         │
+ │                  <─────────┘
+ │                  │
+ │                  v
+ └──────────────> Resolved ─────> Closed
+                      │
+                      └─────────> InProgress
+```
 
 ## Structure
 

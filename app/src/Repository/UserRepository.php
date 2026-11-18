@@ -2,10 +2,12 @@
 
 namespace App\Repository;
 
+use App\Entity\Ticket;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Override;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
@@ -54,6 +56,35 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     public function createListQueryBuilder(): QueryBuilder
     {
         return $this->createQueryBuilder('u')
-            ->orderBy('u.id', 'ASC');
+            ->select(sprintf(
+                'NEW %s(u, (SELECT COUNT(t.id) FROM %s t WHERE t.requester = u))',
+                \App\Dto\BackOffice\User\UserListItemDto::class,
+                Ticket::class,
+            ))
+            ->orderBy('u.id', 'DESC')
+        ;
+    }
+
+    public function findUsers(): array
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.isActive = :isActive')
+            ->andWhere('u.deletedAt IS NULL')
+            ->andWhere('u.id IN (:ids)')
+            ->setParameter('isActive', true)
+            ->setParameter('ids', $this->findIdsByRole('ROLE_USER'))
+            ->orderBy('u.id', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    /** @return list<int> */
+    private function findIdsByRole(string $role): array
+    {
+        return $this->getEntityManager()->getConnection()->fetchFirstColumn(
+            'SELECT id FROM "user" WHERE roles::text LIKE :role',
+            ['role' => '%"'.$role.'"%'],
+        );
     }
 }

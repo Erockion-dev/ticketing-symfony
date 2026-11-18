@@ -2,7 +2,7 @@ services:
   php:
     build:
       context: ./docker/php
-    container_name: symf_starter_php
+    container_name: symf_ticket_php
     volumes:
       - ./app:/var/www/html
     working_dir: /var/www/html
@@ -11,7 +11,7 @@ services:
 
   nginx:
     image: nginx:alpine
-    container_name: symf_starter_nginx
+    container_name: symf_ticket_nginx
     ports:
       - "8080:80"
     volumes:
@@ -22,9 +22,9 @@ services:
 
   postgres:
     image: postgres:18
-    container_name: postgres_symf_starter
+    container_name: postgres_symf_ticket
     environment:
-      POSTGRES_DB: symf_starter
+      POSTGRES_DB: symf_ticket
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
@@ -34,7 +34,7 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4
-    container_name: pgadmin_symf_starter
+    container_name: pgadmin_symf_ticket
     restart: unless-stopped
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@example.com

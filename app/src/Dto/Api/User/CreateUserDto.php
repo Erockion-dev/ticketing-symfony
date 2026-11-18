@@ -12,14 +12,17 @@ class CreateUserDto
     public string $email;
 
     #[Assert\NotBlank]
+    #[Assert\Type('string')]
     #[Assert\Length(min: 1, max: 100)]
     public string $firstname;
 
     #[Assert\NotBlank]
+    #[Assert\Type('string')]
     #[Assert\Length(min: 1, max: 100)]
     public string $lastname;
 
     #[Assert\NotBlank]
+    #[Assert\Type('string')]
     #[Assert\Length(min: 8, max: 255)]
     public string $password;
 

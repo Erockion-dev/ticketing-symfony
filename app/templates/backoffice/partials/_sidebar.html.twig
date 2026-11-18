@@ -9,10 +9,39 @@
         </button>
     </div>
     <nav class="space-y-1 px-3 py-4">
+        {% if is_granted('ROLE_USER') %}
+            <p class="pt-4 pb-2 text-xs font-semibold uppercase tracking-wider text-gray-400 border-t border-gray-800">
+                    User
+                </p>
+            <a href="{{ path('app_dashboard_user_tickets_index') }}"
+                class="block rounded-md px-3 py-2 text-sm hover:bg-gray-800 {{ route starts with 'app_dashboard_user_tickets' ? 'bg-gray-800' : '' }}">
+                Tickets
+            </a>
+        {% endif %}
+        {% if is_granted('ROLE_OPERATOR') %}
+            <p class="pt-4 pb-2 text-xs font-semibold uppercase tracking-wider text-gray-400 border-t border-gray-800">
+                Operator
+            </p>
+            <a href="{{ path('app_dashboard_operator_users_index') }}"
+                class="block rounded-md px-4 py-2 text-sm hover:bg-gray-800 {{ route starts with 'app_dashboard_operator_users' ? 'bg-gray-800' : '' }}">
+                Users
+            </a>
+            <a href="{{ path('app_dashboard_operator_tickets_index') }}"
+                class="block rounded-md px-4 py-2 text-sm hover:bg-gray-800 {{ route starts with 'app_dashboard_operator_tickets' ? 'bg-gray-800' : '' }}">
+                Tickets
+            </a>
+        {% endif %}
         {% if is_granted('ROLE_ADMIN') %}
+            <p class="pt-4 pb-2 text-xs font-semibold uppercase tracking-wider text-gray-400 border-t border-gray-800">
+                Admin
+            </p>
             <a href="{{ path('app_dashboard_admin_users_index') }}"
                 class="block rounded-md px-3 py-2 text-sm hover:bg-gray-800 {{ route starts with 'app_dashboard_admin_user' ? 'bg-gray-800' : '' }}">
                 Users
+            </a>
+            <a href="{{ path('app_dashboard_admin_tickets_index') }}"
+                class="block rounded-md px-4 py-2 text-sm hover:bg-gray-800 {{ route starts with 'app_dashboard_admin_tickets' ? 'bg-gray-800' : '' }}">
+                Tickets
             </a>
         {% endif %}
     </nav>

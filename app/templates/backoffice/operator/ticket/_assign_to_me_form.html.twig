@@ -1,0 +1,4 @@
+<form method="post" action="{{ path('app_dashboard_operator_tickets_assign_to_me', {'id': ticket.id}) }}" onsubmit="return confirm('Are you sure you want to assign this ticket to yourself ?');">
+    <input type="hidden" name="_token" value="{{ csrf_token('assign_to_me' ~ ticket.id) }}">
+    <button class="cursor-pointer ml-3 text-teal-600 hover:text-teal-800">Assign to me</button>
+</form>
